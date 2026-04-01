@@ -37,6 +37,13 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+### 4. Run tests
+
+```bash
+cd backend
+npm test
+```
+
 ## Environment Variables
 
 Copy `backend/.env.example` to `backend/.env` and adjust as needed.

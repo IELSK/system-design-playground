@@ -1,33 +1,23 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./hooks/useAuth";
+import PrivateRoute from "./components/PrivateRoute";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import HomePage from "./pages/HomePage";
 
-function App() {
-  const [health, setHealth] = useState<{ status: string; version: string } | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    api
-      .get("/health")
-      .then((res) => setHealth(res.data))
-      .catch((err) => setError(err.message));
-  }, []);
-
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold">System Design Playground</h1>
-        {health ? (
-          <p className="text-green-400">
-            Backend: {health.status} · v{health.version}
-          </p>
-        ) : error ? (
-          <p className="text-red-400">Erro: {error}</p>
-        ) : (
-          <p className="text-gray-500">Conectando ao backend...</p>
-        )}
-      </div>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/" element={<HomePage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;
