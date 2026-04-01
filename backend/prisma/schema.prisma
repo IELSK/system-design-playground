@@ -1,0 +1,54 @@
+// ============================================================
+// Prisma Schema — System Design Playground
+// ============================================================
+// The datasource points to the PostgreSQL instance running
+// via Docker. The generator produces the TypeScript client
+// we import throughout the codebase.
+//
+// NOTE: We define all three models (User, RefreshToken,
+// Architecture) upfront so the first migration creates every
+// table at once. This avoids unnecessary alter-table migrations
+// later when we start using them in Phases 02 and 08.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  architectures Architecture[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// Architecture will be used in Phase 08, but we declare it here
+// to avoid a future migration that could break existing data.
+model Architecture {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  graph       Json
+  isPublic    Boolean  @default(true)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
