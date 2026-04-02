@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import api, { setAccessToken } from "../services/api";
 
 interface User {
@@ -22,9 +22,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const didInit = useRef(false);
 
-  // Try to restore session on mount via refresh token cookie
   useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+
     api
       .post("/auth/refresh")
       .then((res) => {
