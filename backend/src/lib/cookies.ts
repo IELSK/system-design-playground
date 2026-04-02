@@ -8,7 +8,7 @@ export function setRefreshCookie(res: Response, token: string): void {
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
-    path: "/auth",
+    path: "/",
     maxAge: SEVEN_DAYS_MS,
   });
 }
@@ -18,7 +18,7 @@ export function clearRefreshCookie(res: Response): void {
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
-    path: "/auth",
+    path: "/",
   });
 }
 

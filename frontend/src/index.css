@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* React Flow controls — dark theme */
+.react-flow__controls {
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+}
+.react-flow__controls button {
+  background: #1f2937;
+  border-bottom: 1px solid #374151;
+  fill: #d1d5db;
+  color: #d1d5db;
+}
+.react-flow__controls button:hover {
+  background: #374151;
+  fill: #f3f4f6;
+}
+.react-flow__controls button svg {
+  fill: inherit;
+}
+
+/* React Flow attribution — dim it */
+.react-flow__attribution {
+  opacity: 1;
+}
+.react-flow__attribution a {
+  color: #f8f8f8;
+}
