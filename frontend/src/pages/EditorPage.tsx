@@ -44,6 +44,7 @@ function EditorCanvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
+  const [bottleneckId, setBottleneckId] = useState<string | null>(null);
 
   const isValidConnection = useConnectionValidator(nodes);
   const { save, load, clear } = useGraphStorage();
@@ -173,9 +174,17 @@ function EditorCanvas() {
 
     try {
       const res = await api.post("/simulate", payload);
+      const bnId = res.data.summary.bottleneck_node_id;
+      setBottleneckId(bnId);
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          data: { ...n.data, bottleneck: n.id === bnId },
+        })),
+      );
       console.log("Simulation result:", res.data);
     } catch (err) {
-      console.log("Simulate endpoint not implemented yet (Phase 04)");
+      console.error("Simulation failed:", err);
     }
   }, [nodes, edges]);
 
