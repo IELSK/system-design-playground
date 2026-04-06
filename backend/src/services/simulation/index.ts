@@ -4,6 +4,7 @@ import { CapacityResult } from "./nodes/base";
 import { calcLoadBalancer } from "./nodes/loadBalancer";
 import { calcApiServer } from "./nodes/apiServer";
 import { calcQueue } from "./nodes/queue";
+import { calcWorker } from "./nodes/worker";
 import { calcDatabase } from "./nodes/database";
 import { calcCache } from "./nodes/cache";
 
@@ -12,12 +13,12 @@ const SCALE_TRAFFIC_LEVELS = [100, 500, 1000, 2000, 5000, 10000, 20000];
 function getCapacity(node: SimNode): CapacityResult {
   switch (node.type) {
     case "load_balancer": return calcLoadBalancer(node.config);
-    case "api":           return calcApiServer(node.config);
-    case "queue":         return calcQueue(node.config);
-    case "worker":        return calcQueue(node.config); // same formula
-    case "database":      return calcDatabase(node.config);
-    case "cache":         return calcCache(node.config);
-    default:              return { capacity_rps: Infinity, latency_ms: 0 };
+    case "api": return calcApiServer(node.config);
+    case "queue": return calcQueue(node.config);
+    case "worker": return calcWorker(node.config);
+    case "database": return calcDatabase(node.config);
+    case "cache": return calcCache(node.config);
+    default: return { capacity_rps: Infinity, latency_ms: 0 };
   }
 }
 

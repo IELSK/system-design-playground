@@ -1,12 +1,10 @@
 import { CapacityResult } from "./base";
 
 export function calcQueue(config: Record<string, number>): CapacityResult {
-  const workers = config.workers || 1;
-  const concurrency = config.concurrency || 1;
-  const processing_ms = config.processing_ms || 50;
+  const capacity = config.capacity || 10000;
 
   return {
-    capacity_rps: workers * concurrency * (1000 / processing_ms),
-    latency_ms: processing_ms,
+    capacity_rps: capacity,
+    latency_ms: 1,
   };
 }

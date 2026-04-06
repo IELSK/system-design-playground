@@ -5,6 +5,7 @@ import { calcDatabase } from "../services/simulation/nodes/database";
 import { calcCache } from "../services/simulation/nodes/cache";
 import { simulate } from "../services/simulation";
 import { topologicalSort } from "../services/simulation/graph";
+import { SimNode } from "../services/simulation/types";
 
 describe("Node capacity calculators", () => {
   it("loadBalancer: capacity = instances * (1000 / overhead_ms)", () => {
@@ -56,9 +57,9 @@ describe("topologicalSort", () => {
 });
 
 describe("simulate", () => {
-  const baseNodes = [
+  const baseNodes: SimNode[] = [
     { id: "n1", type: "client", config: { rps: 5000 } },
-    { id: "n2", type: "load_balancer", config: { instances: 2, overhead_ms: 1 } },
+    { id: "n2", type: "load_balancer", config: { instances: 10, overhead_ms: 1 } },
     { id: "n3", type: "api", config: { instances: 4, processing_ms: 20, max_rps_per_instance: 500 } },
     { id: "n4", type: "cache", config: { hit_rate: 0.8, read_latency_ms: 1 } },
     { id: "n5", type: "database", config: { read_latency_ms: 5, write_latency_ms: 10, max_connections: 200 } },
