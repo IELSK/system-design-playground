@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { healthRouter } from "./routes/health";
 import { authRouter } from "./routes/auth";
+import { simulateRouter } from "./routes/simulate";
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.use(
 
 app.use(healthRouter);
 app.use(authRouter);
+app.use(simulateRouter);
 
 export default app;
