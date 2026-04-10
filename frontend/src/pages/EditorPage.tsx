@@ -23,6 +23,7 @@ import {
   DEFAULT_CONFIGS,
 } from "../types/nodes";
 import { SimulationResponse } from "../types/simulation";
+import { CostEstimateResponse } from "../types/cost";
 import ArchitectureNode from "../components/nodes/ArchitectureNode";
 import Sidebar from "../components/editor/Sidebar";
 import ConfigPanel from "../components/editor/ConfigPanel";
@@ -48,6 +49,7 @@ function EditorCanvas() {
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
   const [bottleneckId, setBottleneckId] = useState<string | null>(null);
   const [simResult, setSimResult] = useState<SimulationResponse | null>(null);
+  const [costResult, setCostResult] = useState<CostEstimateResponse | null>(null);
   const [simulating, setSimulating] = useState(false);
 
   const isValidConnection = useConnectionValidator(nodes);
@@ -179,8 +181,14 @@ function EditorCanvas() {
     };
 
     try {
-      const res = await api.post<SimulationResponse>("/simulate", payload);
-      const data = res.data;
+      const [simRes, costRes] = await Promise.all([
+        api.post<SimulationResponse>("/simulate", payload),
+        api.post<CostEstimateResponse>("/cost-estimate", {
+          nodes: payload.nodes,
+          edges: payload.edges,
+        }),
+      ]);
+      const data = simRes.data;
       const bnId = data.summary.bottleneck_node_id;
       setBottleneckId(bnId);
       setNodes((nds) =>
@@ -190,6 +198,7 @@ function EditorCanvas() {
         })),
       );
       setSimResult(data);
+      setCostResult(costRes.data);
     } catch (err) {
       console.error("Simulation failed:", err);
     } finally {
@@ -237,7 +246,11 @@ function EditorCanvas() {
         {simResult && (
           <Dashboard
             result={simResult}
-            onClose={() => setSimResult(null)}
+            cost={costResult}
+            onClose={() => {
+              setSimResult(null);
+              setCostResult(null);
+            }}
           />
         )}
 

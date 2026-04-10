@@ -1,15 +1,18 @@
 import { SimulationResponse } from "../../types/simulation";
+import { CostEstimateResponse } from "../../types/cost";
 import SummaryCards from "./SummaryCards";
 import LatencyChart from "./LatencyChart";
 import UtilizationBars from "./UtilizationBars";
 import NodeDetailTable from "./NodeDetailTable";
+import CostBreakdown from "./CostBreakdown";
 
 interface Props {
   result: SimulationResponse;
+  cost: CostEstimateResponse | null;
   onClose: () => void;
 }
 
-export default function Dashboard({ result, onClose }: Props) {
+export default function Dashboard({ result, cost, onClose }: Props) {
   return (
     <div className="w-full md:w-[40%] md:min-w-[320px] md:max-w-[480px] h-full bg-gray-900 border-l border-gray-800 flex flex-col overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-800">
@@ -27,6 +30,7 @@ export default function Dashboard({ result, onClose }: Props) {
         <LatencyChart nodes={result.nodes} />
         <UtilizationBars nodes={result.nodes} />
         <NodeDetailTable nodes={result.nodes} />
+        {cost && <CostBreakdown cost={cost} />}
       </div>
     </div>
   );
