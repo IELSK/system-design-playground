@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { healthRouter } from "./routes/health";
 import { authRouter } from "./routes/auth";
 import { simulateRouter } from "./routes/simulate";
+import { costRouter } from "./routes/cost";
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.use(
 app.use(healthRouter);
 app.use(authRouter);
 app.use(simulateRouter);
+app.use(costRouter);
 
 export default app;
