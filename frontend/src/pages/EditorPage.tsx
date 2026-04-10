@@ -22,10 +22,12 @@ import {
   NODE_LABELS,
   DEFAULT_CONFIGS,
 } from "../types/nodes";
+import { SimulationResponse } from "../types/simulation";
 import ArchitectureNode from "../components/nodes/ArchitectureNode";
 import Sidebar from "../components/editor/Sidebar";
 import ConfigPanel from "../components/editor/ConfigPanel";
 import Toolbar from "../components/editor/Toolbar";
+import Dashboard from "../components/dashboard/Dashboard";
 import { useConnectionValidator } from "../hooks/useConnectionValidator";
 import { useGraphStorage } from "../hooks/useGraphStorage";
 import api from "../services/api";
@@ -45,6 +47,8 @@ function EditorCanvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
   const [bottleneckId, setBottleneckId] = useState<string | null>(null);
+  const [simResult, setSimResult] = useState<SimulationResponse | null>(null);
+  const [simulating, setSimulating] = useState(false);
 
   const isValidConnection = useConnectionValidator(nodes);
   const { save, load, clear } = useGraphStorage();
@@ -155,6 +159,8 @@ function EditorCanvas() {
   const handleSimulate = useCallback(async () => {
     if (nodes.length === 0) return;
 
+    setSimulating(true);
+
     const clientNode = nodes.find((n) => n.data.nodeType === "client");
     const traffic = clientNode ? (clientNode.data.config as { rps: number }).rps : 1000;
 
@@ -173,8 +179,9 @@ function EditorCanvas() {
     };
 
     try {
-      const res = await api.post("/simulate", payload);
-      const bnId = res.data.summary.bottleneck_node_id;
+      const res = await api.post<SimulationResponse>("/simulate", payload);
+      const data = res.data;
+      const bnId = data.summary.bottleneck_node_id;
       setBottleneckId(bnId);
       setNodes((nds) =>
         nds.map((n) => ({
@@ -182,9 +189,11 @@ function EditorCanvas() {
           data: { ...n.data, bottleneck: n.id === bnId },
         })),
       );
-      console.log("Simulation result:", res.data);
+      setSimResult(data);
     } catch (err) {
       console.error("Simulation failed:", err);
+    } finally {
+      setSimulating(false);
     }
   }, [nodes, edges]);
 
@@ -198,6 +207,7 @@ function EditorCanvas() {
         onZoomOut={() => zoomOut()}
         onFitView={() => fitView()}
         onSimulate={handleSimulate}
+        simulating={simulating}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -223,6 +233,13 @@ function EditorCanvas() {
             <Controls />
           </ReactFlow>
         </div>
+
+        {simResult && (
+          <Dashboard
+            result={simResult}
+            onClose={() => setSimResult(null)}
+          />
+        )}
 
         {selectedNode && (
           <ConfigPanel
