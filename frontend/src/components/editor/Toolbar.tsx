@@ -6,6 +6,7 @@ interface Props {
   onZoomOut: () => void;
   onFitView: () => void;
   onSimulate: () => void;
+  simulating?: boolean;
 }
 
 export default function Toolbar({
@@ -16,6 +17,7 @@ export default function Toolbar({
   onZoomOut,
   onFitView,
   onSimulate,
+  simulating = false,
 }: Props) {
   const btn = "px-3 py-1.5 text-xs font-medium rounded border border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-gray-100 transition-colors";
 
@@ -35,9 +37,10 @@ export default function Toolbar({
 
       <button
         onClick={onSimulate}
-        className="px-3 py-1.5 text-xs font-semibold rounded bg-indigo-600 text-white hover:bg-indigo-500 transition-colors"
+        disabled={simulating}
+        className="px-3 py-1.5 text-xs font-semibold rounded bg-indigo-600 text-white hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Simulate →
+        {simulating ? "Simulating..." : "Simulate →"}
       </button>
     </div>
   );
