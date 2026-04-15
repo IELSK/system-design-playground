@@ -18,7 +18,7 @@ simulateRouter.post("/simulate", (req: Request, res: Response) => {
       return;
     }
 
-    const result = simulate(nodes, edges, traffic);
+    const result = simulate(nodes, edges, traffic, failures || []);
     res.json(result);
   } catch (err) {
     console.error("Simulation error:", err);

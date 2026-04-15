@@ -14,11 +14,18 @@ export interface SimNode {
 export interface SimEdge {
   source: string;
   target: string;
+  weight?: number;
 }
+
+export type FailureType =
+  | "node_down"
+  | "slow_response"
+  | "partial_failure"
+  | "capacity_degraded";
 
 export interface Failure {
   node_id: string;
-  type: string;
+  type: FailureType;
   factor?: number;
   percent?: number;
   error_percent?: number;
@@ -33,6 +40,7 @@ export interface NodeResult {
   queue_wait_ms: number;
   effective_rps: number;
   is_bottleneck: boolean;
+  failure_mode?: FailureType;
 }
 
 export interface ScalePoint {
