@@ -63,6 +63,7 @@ export interface NodeData {
   nodeType: NodeType;
   config: NodeConfig;
   bottleneck?: boolean;
+  failureMode?: string;
 }
 
 export const NODE_LABELS: Record<NodeType, string> = {

@@ -6,6 +6,8 @@ interface Props {
   onZoomOut: () => void;
   onFitView: () => void;
   onSimulate: () => void;
+  onToggleFailures: () => void;
+  failureCount: number;
   simulating?: boolean;
 }
 
@@ -17,6 +19,8 @@ export default function Toolbar({
   onZoomOut,
   onFitView,
   onSimulate,
+  onToggleFailures,
+  failureCount,
   simulating = false,
 }: Props) {
   const btn = "px-3 py-1.5 text-xs font-medium rounded border border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-gray-100 transition-colors";
@@ -34,6 +38,13 @@ export default function Toolbar({
       <button onClick={onFitView} className={btn}>Fit</button>
 
       <div className="flex-1 min-w-[6px]" />
+
+      <button
+        onClick={onToggleFailures}
+        className={`${btn} ${failureCount > 0 ? "border-amber-700 text-amber-400" : ""}`}
+      >
+        Failures{failureCount > 0 ? ` (${failureCount})` : ""}
+      </button>
 
       <button
         onClick={onSimulate}

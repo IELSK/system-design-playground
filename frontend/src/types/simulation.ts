@@ -1,3 +1,17 @@
+export type FailureType =
+  | "node_down"
+  | "slow_response"
+  | "partial_failure"
+  | "capacity_degraded";
+
+export interface Failure {
+  node_id: string;
+  type: FailureType;
+  factor?: number;
+  percent?: number;
+  error_percent?: number;
+}
+
 export interface NodeResult {
   id: string;
   type: string;
@@ -7,6 +21,7 @@ export interface NodeResult {
   queue_wait_ms: number;
   effective_rps: number;
   is_bottleneck: boolean;
+  failure_mode?: FailureType;
 }
 
 export interface ScalePoint {
