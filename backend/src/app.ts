@@ -5,6 +5,7 @@ import { healthRouter } from "./routes/health";
 import { authRouter } from "./routes/auth";
 import { simulateRouter } from "./routes/simulate";
 import { costRouter } from "./routes/cost";
+import { architectureRouter } from "./routes/architecture";
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use(healthRouter);
 app.use(authRouter);
 app.use(simulateRouter);
 app.use(costRouter);
+app.use(architectureRouter);
 
 export default app;

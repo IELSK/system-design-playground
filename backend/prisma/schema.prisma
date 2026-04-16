@@ -11,19 +11,23 @@ model User {
   id            String         @id @default(uuid())
   email         String         @unique
   name          String
-  passwordHash  String
-  createdAt     DateTime       @default(now())
+  passwordHash  String         @map("password_hash")
+  createdAt     DateTime       @default(now()) @map("created_at")
   architectures Architecture[]
   refreshTokens RefreshToken[]
+
+  @@map("users")
 }
 
 model RefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique
-  userId    String
+  userId    String   @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
 }
 
 model Architecture {
@@ -31,9 +35,11 @@ model Architecture {
   name        String
   description String?
   graph       Json
-  isPublic    Boolean  @default(true)
-  userId      String
+  isPublic    Boolean  @default(true) @map("is_public")
+  userId      String   @map("user_id")
   user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("architectures")
 }

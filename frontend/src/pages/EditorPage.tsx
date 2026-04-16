@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, DragEvent } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ReactFlow,
   Node,
@@ -29,7 +30,10 @@ import Sidebar from "../components/editor/Sidebar";
 import ConfigPanel from "../components/editor/ConfigPanel";
 import EdgePanel from "../components/editor/EdgePanel";
 import FailurePanel from "../components/editor/FailurePanel";
+import SaveDialog from "../components/editor/SaveDialog";
 import Toolbar from "../components/editor/Toolbar";
+import ScaleAnalysis from "../components/scale/ScaleAnalysis";
+import { Architecture } from "../types/architecture";
 import Dashboard from "../components/dashboard/Dashboard";
 import { useConnectionValidator } from "../hooks/useConnectionValidator";
 import { useGraphStorage } from "../hooks/useGraphStorage";
@@ -83,7 +87,12 @@ function EditorCanvas() {
   const [simResult, setSimResult] = useState<SimulationResponse | null>(null);
   const [costResult, setCostResult] = useState<CostEstimateResponse | null>(null);
   const [simulating, setSimulating] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showScale, setShowScale] = useState(false);
+  const [currentArch, setCurrentArch] = useState<Architecture | null>(null);
 
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isValidConnection = useConnectionValidator(nodes);
   const { save, load, clear } = useGraphStorage();
 
@@ -94,8 +103,30 @@ function EditorCanvas() {
     }
   }, [nodes, edges, save]);
 
-  // Load from localStorage on mount
+  // Load from cloud (if ?id=...) or localStorage on mount
   useEffect(() => {
+    const archId = searchParams.get("id");
+    if (archId) {
+      api
+        .get<{ architecture: Architecture }>(`/architectures/${archId}`)
+        .then((res) => {
+          const arch = res.data.architecture;
+          setCurrentArch(arch);
+          setNodes(arch.graph.nodes);
+          setEdges(decorateEdgeLabels(arch.graph.edges));
+          const maxId = arch.graph.nodes.reduce((max, n) => {
+            const num = parseInt(n.id.replace("node_", ""), 10);
+            return isNaN(num) ? max : Math.max(max, num);
+          }, 0);
+          nodeIdCounter = maxId;
+        })
+        .catch(() => {
+          alert("Architecture not found or access denied");
+          setSearchParams({});
+        });
+      return;
+    }
+
     const stored = load();
     if (stored && stored.nodes.length > 0) {
       setNodes(stored.nodes);
@@ -255,8 +286,48 @@ function EditorCanvas() {
     setSelectedNode(null);
     setSelectedEdge(null);
     setFailures([]);
+    setCurrentArch(null);
+    if (searchParams.get("id")) setSearchParams({});
     clear();
-  }, [setNodes, setEdges, clear]);
+  }, [setNodes, setEdges, clear, searchParams, setSearchParams]);
+
+  const handleCloudSave = useCallback(
+    async (data: { name: string; description: string; isPublic: boolean }) => {
+      const graph = { nodes, edges };
+      const res = await api.post<{ architecture: Architecture }>(
+        "/architectures",
+        {
+          name: data.name,
+          description: data.description,
+          isPublic: data.isPublic,
+          graph,
+        },
+      );
+      setCurrentArch(res.data.architecture);
+      setSearchParams({ id: res.data.architecture.id });
+    },
+    [nodes, edges, setSearchParams],
+  );
+
+  const handleCloudUpdate = useCallback(async () => {
+    if (!currentArch) return;
+    try {
+      const res = await api.patch<{ architecture: Architecture }>(
+        `/architectures/${currentArch.id}`,
+        { graph: { nodes, edges } },
+      );
+      setCurrentArch(res.data.architecture);
+    } catch {
+      alert("Failed to update");
+    }
+  }, [currentArch, nodes, edges]);
+
+  const handleShare = useCallback(() => {
+    if (!currentArch) return;
+    const url = `${window.location.origin}/a/${currentArch.id}`;
+    navigator.clipboard.writeText(url);
+    alert(`Link copied: ${url}`);
+  }, [currentArch]);
 
   const handleSimulate = useCallback(async () => {
     if (nodes.length === 0) return;
@@ -325,6 +396,14 @@ function EditorCanvas() {
         onFitView={() => fitView()}
         onSimulate={handleSimulate}
         onToggleFailures={() => setShowFailures((v) => !v)}
+        onOpenScale={() => setShowScale(true)}
+        scaleAvailable={!!simResult}
+        onCloudSave={() => setShowSaveDialog(true)}
+        onCloudUpdate={currentArch ? handleCloudUpdate : undefined}
+        onMyArchitectures={() => navigate("/my-architectures")}
+        onShare={currentArch?.isPublic ? handleShare : undefined}
+        currentArchName={currentArch?.name ?? null}
+        currentArchIsPublic={currentArch?.isPublic}
         failureCount={failures.length}
         simulating={simulating}
       />
@@ -397,6 +476,26 @@ function EditorCanvas() {
           />
         )}
       </div>
+
+      {showScale && simResult && (
+        <ScaleAnalysis
+          result={simResult}
+          cost={costResult}
+          nodes={nodes}
+          onClose={() => setShowScale(false)}
+        />
+      )}
+
+      {showSaveDialog && (
+        <SaveDialog
+          initialName={currentArch?.name ?? ""}
+          initialDescription={currentArch?.description ?? ""}
+          initialIsPublic={currentArch?.isPublic ?? false}
+          submitLabel={currentArch ? "Save as copy" : "Save"}
+          onSubmit={handleCloudSave}
+          onClose={() => setShowSaveDialog(false)}
+        />
+      )}
     </div>
   );
 }

@@ -294,6 +294,7 @@ export function simulate(
       traffic_rps: t,
       latency_ms: r.totalLatency,
       throughput_rps: r.throughput,
+      error_rate_percent: r.errorRate,
       bottleneck: r.bottleneckId,
     };
   });
