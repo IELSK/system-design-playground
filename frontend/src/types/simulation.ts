@@ -28,6 +28,7 @@ export interface ScalePoint {
   traffic_rps: number;
   latency_ms: number;
   throughput_rps: number;
+  error_rate_percent: number;
   bottleneck: string | null;
 }
 
