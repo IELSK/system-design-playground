@@ -243,6 +243,37 @@ function EditorCanvas() {
     [setNodes],
   );
 
+  const onNodeDelete = useCallback(
+    (nodeId: string) => {
+      setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+      setEdges((eds) =>
+        decorateEdgeLabels(
+          eds.filter((e) => e.source !== nodeId && e.target !== nodeId),
+        ),
+      );
+      setSelectedNode(null);
+    },
+    [setNodes, setEdges],
+  );
+
+  const onNodesDelete = useCallback(
+    (deleted: Node<NodeData>[]) => {
+      const ids = new Set(deleted.map((n) => n.id));
+      setEdges((eds) =>
+        decorateEdgeLabels(
+          eds.filter((e) => !ids.has(e.source) && !ids.has(e.target)),
+        ),
+      );
+      setSelectedNode(null);
+      setSelectedEdge(null);
+    },
+    [setEdges],
+  );
+
+  const onEdgesDelete = useCallback(() => {
+    setSelectedEdge(null);
+  }, []);
+
   const onEdgeWeightChange = useCallback(
     (edgeId: string, weight: number) => {
       setEdges((eds) => {
@@ -417,6 +448,8 @@ function EditorCanvas() {
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
+            onNodesDelete={onNodesDelete}
+            onEdgesDelete={onEdgesDelete}
             onConnect={onConnect}
             onDrop={onDrop}
             onDragOver={onDragOver}
@@ -425,6 +458,7 @@ function EditorCanvas() {
             onPaneClick={onPaneClick}
             isValidConnection={isValidConnection}
             nodeTypes={nodeTypes}
+            deleteKeyCode={["Backspace", "Delete"]}
             fitView
             className="bg-gray-950"
           >
@@ -453,6 +487,7 @@ function EditorCanvas() {
           <ConfigPanel
             node={selectedNode}
             onChange={onConfigChange}
+            onDelete={onNodeDelete}
             onClose={() => setSelectedNode(null)}
           />
         )}

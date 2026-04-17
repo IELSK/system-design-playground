@@ -4,6 +4,7 @@ import { NodeData, NodeConfig } from "../../types/nodes";
 interface Props {
   node: Node<NodeData>;
   onChange: (nodeId: string, config: NodeConfig) => void;
+  onDelete: (nodeId: string) => void;
   onClose: () => void;
 }
 
@@ -22,7 +23,7 @@ const FIELD_LABELS: Record<string, string> = {
   hit_rate: "Hit rate (0-1)",
 };
 
-export default function ConfigPanel({ node, onChange, onClose }: Props) {
+export default function ConfigPanel({ node, onChange, onDelete, onClose }: Props) {
   const config = node.data.config;
   const entries = Object.entries(config) as [string, number][];
 
@@ -70,6 +71,13 @@ export default function ConfigPanel({ node, onChange, onClose }: Props) {
           </div>
         ))}
       </div>
+
+      <button
+        onClick={() => onDelete(node.id)}
+        className="mt-4 px-3 py-1.5 text-xs font-medium rounded border border-red-900/60 bg-red-900/20 text-red-400 hover:bg-red-900/40 transition-colors w-full"
+      >
+        Delete node
+      </button>
     </div>
     </>
   );
