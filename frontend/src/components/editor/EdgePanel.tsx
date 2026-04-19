@@ -59,7 +59,7 @@ export default function EdgePanel({
               type="range"
               min={0}
               max={100}
-              step={5}
+              step={1}
               value={percent}
               onChange={(e) => onChange(edge.id, parseInt(e.target.value, 10))}
               className="w-full accent-indigo-500"

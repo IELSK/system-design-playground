@@ -275,16 +275,48 @@ function EditorCanvas() {
   }, []);
 
   const onEdgeWeightChange = useCallback(
-    (edgeId: string, weight: number) => {
+    (edgeId: string, percent: number) => {
       setEdges((eds) => {
+        const target = eds.find((e) => e.id === edgeId);
+        if (!target) return eds;
+
+        const siblings = eds.filter((e) => e.source === target.source);
+        const others = siblings.filter((e) => e.id !== edgeId);
+        const remaining = 100 - percent;
+
+        const othersTotal = others.reduce(
+          (sum, e) => sum + ((e.data?.weight as number | undefined) ?? 0),
+          0,
+        );
+
+        const newWeights = new Map<string, number>();
+        newWeights.set(edgeId, percent);
+
+        if (others.length > 0) {
+          if (othersTotal > 0) {
+            others.forEach((e) => {
+              const w = (e.data?.weight as number | undefined) ?? 0;
+              newWeights.set(e.id, (w / othersTotal) * remaining);
+            });
+          } else {
+            const even = remaining / others.length;
+            others.forEach((e) => newWeights.set(e.id, even));
+          }
+        }
+
         const updated = eds.map((e) =>
-          e.id === edgeId ? { ...e, data: { ...(e.data ?? {}), weight } } : e,
+          newWeights.has(e.id)
+            ? {
+                ...e,
+                data: { ...(e.data ?? {}), weight: newWeights.get(e.id)! },
+              }
+            : e,
         );
         return decorateEdgeLabels(updated);
       });
       setSelectedEdge((prev) =>
         prev && prev.id === edgeId
-          ? { ...prev, data: { ...(prev.data ?? {}), weight } }
+          ? { ...prev, data: { ...(prev.data ?? {}), weight: percent } }
           : prev,
       );
     },
