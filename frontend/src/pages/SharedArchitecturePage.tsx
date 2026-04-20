@@ -15,7 +15,9 @@ import { PublicArchitecture } from "../types/architecture";
 const nodeTypes = { architecture: ArchitectureNode };
 
 // Use a plain axios instance (no auth interceptors) for the public endpoint
-const publicApi = axios.create({ baseURL: "/api" });
+const publicApi = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "/api",
+});
 
 export default function SharedArchitecturePage() {
   const { id } = useParams<{ id: string }>();
