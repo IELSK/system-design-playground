@@ -179,6 +179,24 @@ function EditorCanvas() {
     event.dataTransfer.dropEffect = "move";
   }, []);
 
+  const addNodeAt = useCallback(
+    (nodeType: NodeType, position: { x: number; y: number }) => {
+      const newNode: Node<NodeData> = {
+        id: getNextId(),
+        type: "architecture",
+        position,
+        data: {
+          label: NODE_LABELS[nodeType],
+          nodeType,
+          config: { ...DEFAULT_CONFIGS[nodeType] },
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+    },
+    [setNodes],
+  );
+
   const onDrop = useCallback(
     (event: DragEvent) => {
       event.preventDefault();
@@ -193,20 +211,25 @@ function EditorCanvas() {
         y: event.clientY,
       });
 
-      const newNode: Node<NodeData> = {
-        id: getNextId(),
-        type: "architecture",
-        position,
-        data: {
-          label: NODE_LABELS[nodeType],
-          nodeType,
-          config: { ...DEFAULT_CONFIGS[nodeType] },
-        },
-      };
-
-      setNodes((nds) => [...nds, newNode]);
+      addNodeAt(nodeType, position);
     },
-    [screenToFlowPosition, setNodes],
+    [screenToFlowPosition, addNodeAt],
+  );
+
+  const onAddFromSidebar = useCallback(
+    (nodeType: NodeType) => {
+      const wrapper = reactFlowWrapper.current;
+      if (!wrapper) return;
+
+      const rect = wrapper.getBoundingClientRect();
+      const position = screenToFlowPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+
+      addNodeAt(nodeType, position);
+    },
+    [screenToFlowPosition, addNodeAt],
   );
 
   const onNodeClick = useCallback(
@@ -472,7 +495,7 @@ function EditorCanvas() {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+        <Sidebar onAdd={onAddFromSidebar} />
 
         <div ref={reactFlowWrapper} className="flex-1">
           <ReactFlow

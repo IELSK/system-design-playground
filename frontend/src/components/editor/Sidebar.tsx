@@ -1,12 +1,21 @@
 import { DragEvent, useState } from "react";
 import { NODE_TYPES, NODE_LABELS, NODE_COLORS, NodeType } from "../../types/nodes";
- 
-export default function Sidebar() {
+
+interface Props {
+  onAdd: (nodeType: NodeType) => void;
+}
+
+export default function Sidebar({ onAdd }: Props) {
   const [open, setOpen] = useState(false);
- 
+
   function onDragStart(event: DragEvent, nodeType: NodeType) {
     event.dataTransfer.setData("application/reactflow-nodetype", nodeType);
     event.dataTransfer.effectAllowed = "move";
+    setOpen(false);
+  }
+
+  function onClick(nodeType: NodeType) {
+    onAdd(nodeType);
     setOpen(false);
   }
  
@@ -38,7 +47,8 @@ export default function Sidebar() {
             key={type}
             draggable
             onDragStart={(e) => onDragStart(e, type)}
-            className="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 cursor-grab active:cursor-grabbing hover:border-gray-500 transition-colors"
+            onClick={() => onClick(type)}
+            className="px-3 py-2 rounded-md border border-gray-700 bg-gray-800 cursor-grab active:cursor-grabbing hover:border-gray-500 transition-colors select-none"
           >
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: NODE_COLORS[type] }} />
