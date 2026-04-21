@@ -96,8 +96,6 @@ system-design-playground/
 
 **React Flow with a single node type** — all 7 component types (Client, LB, API, Queue, Worker, DB, Cache) share one `ArchitectureNode` component, switching rendering by `data.nodeType`. This keeps the node type registry simple.
 
-**Prisma with @map/@@map** — TypeScript code uses camelCase (`isPublic`, `userId`), PostgreSQL uses snake_case (`is_public`, `user_id`). A data-preserving migration (ALTER TABLE RENAME, not DROP/CREATE) was used to avoid data loss.
-
 **Cost per 1M requests as scale metric** — infrastructure cost is fixed regardless of traffic, so raw cost doesn't change. Plotting `cost / throughput × 1M` reveals efficiency: it drops as throughput grows, then spikes when the system saturates and throughput plateaus.
 
 ---
