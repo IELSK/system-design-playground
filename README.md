@@ -185,7 +185,26 @@ npm test             # 32 tests (needs PostgreSQL running)
 
 ## Screenshots
 
-> *Screenshots will be added here*
+> Mounted Canva
+> <img width="1915" height="954" alt="image" src="https://github.com/user-attachments/assets/fea1abf5-8b53-41d9-9622-9fe5ba220307" />
+
+> Performance Dashboard
+> <img width="1915" height="955" alt="image" src="https://github.com/user-attachments/assets/24038d40-1b53-4039-9624-cb84fc9765aa" />
+
+> Failure Applied
+> <img width="1912" height="957" alt="image" src="https://github.com/user-attachments/assets/f4f7b0b8-ecb7-4fff-82a5-8c3c4a0ed42f" />
+
+> Scale Analysis
+> <img width="1911" height="952" alt="image" src="https://github.com/user-attachments/assets/96cfd2f7-4466-42e9-b2fa-bfcee8a6cfb8" />
+
+> My Architectures
+> <img width="1919" height="924" alt="image" src="https://github.com/user-attachments/assets/3edee0e7-8f75-486c-a624-9304824034c3" />
+
+---
+
+## Demo
+> ## Demo
+> [![Demo](https://img.youtube.com/vi/f7O8XenlnGU/0.jpg)](https://www.youtube.com/watch?v=f7O8XenlnGU)
 
 ---
 
